@@ -4,51 +4,74 @@
  */
 package patrones.comportamiento.interpreter;
 
-import sun.security.provider.PolicyParser;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  *
- * @author chamo
+ * @author Brayan
  */
 public class EjemploInterpreter {
-
-    String op = "4 5 + 7 *";
+    
+    String op;
     Expresion raiz;
+    String[] partes;
     String finali;
-    String temporal1,temporal2;
+    ArrayList<String> token = new ArrayList<String>();
 
-    public void operacion() {
-
-        String[] partes = op.split(" ");
-        for (int j = 0; j <= partes.length; j++) {
+    public void operacion(String archivo) throws FileNotFoundException, IOException {
+        FileReader f = new FileReader(archivo);
+        BufferedReader b = new BufferedReader(f);
+        op = b.readLine();
+        partes = op.split(" ");
+        for (int j = 0; j <= partes.length - 1; j++) {
             finali = partes[j];
-            if (finali == "+"){
-                
+
+            if (!finali.equals("+") && !finali.equals("-") && !finali.equals("*") && !finali.equals("/")) {
+                token.add(finali);
+            }
+            if (finali.equals("+")) {
                 raiz = new ExpresionPlus();
                 raiz.setLeft(new ExpresionNumber());
-                raiz.getLeft().setValue(partes[partes.length-j-2]);
+                raiz.getLeft().setValue(token.get(token.size() - 2));
                 raiz.setRight(new ExpresionNumber());
-                raiz.getRight().setValue(partes[partes.length-j-1]);
-                j = j - 3;
-                
-            }if (finali == "-"){
+                raiz.getRight().setValue(token.get(token.size() - 1));
+                token.set(token.size() - 2, Integer.toString(raiz.evaluate()));
+                token.remove(token.size() - 1);
+            }
+            if (finali.equals("-")) {
                 raiz = new ExpresionMinus();
-            }if (finali == "*"){
+                raiz.setLeft(new ExpresionNumber());
+                raiz.getLeft().setValue(token.get(token.size() - 2));
+                raiz.setRight(new ExpresionNumber());
+                raiz.getRight().setValue(token.get(token.size() - 1));
+                token.set(token.size() - 2, Integer.toString(raiz.evaluate()));
+                token.remove(token.size() - 1);
+            }
+            if (finali.equals("*")) {
                 raiz = new ExpresionMul();
-                
-            }if (finali == "/"){
+                raiz.setLeft(new ExpresionNumber());
+                raiz.getLeft().setValue(token.get(token.size() - 2));
+                raiz.setRight(new ExpresionNumber());
+                raiz.getRight().setValue(token.get(token.size() - 1));
+                token.set(token.size() - 2, Integer.toString(raiz.evaluate()));
+                token.remove(token.size() - 1);
+
+            }
+            if (finali.equals("/")) {
                 raiz = new ExpresionDiv();
+                raiz.setLeft(new ExpresionNumber());
+                raiz.getLeft().setValue(token.get(token.size() - 2));
+                raiz.setRight(new ExpresionNumber());
+                raiz.getRight().setValue(token.get(token.size() - 1));
+                token.set(token.size() - 2, Integer.toString(raiz.evaluate()));
+                token.remove(token.size() - 1);
             }
         }
-        raiz = new ExpresionPlus();
-        raiz.setLeft(new ExpresionNumber());
-        raiz.getLeft().setValue("15");
-        
-        raiz.setRight(new ExpresionMinus());
-        raiz.getRight().setLeft(new ExpresionNumber());
-        raiz.getRight().getLeft().setValue("25");
-        raiz.getRight().setRight(new ExpresionNumber());
-        raiz.getRight().getRight().setValue("5");
+
         System.out.println(raiz.evaluate());
     }
 }
